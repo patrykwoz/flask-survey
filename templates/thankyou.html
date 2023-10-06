@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Survey{% endblock %}
+
+{% block content %}
+
+  <h1>{{survey.title}}</h1>
+  <p>Thank you for completing the <span class="emphasize">{{ survey_name }}</span> survey!</p>
+  <a href="/"><button>Home</button></a>
+
+
+{% endblock %}
