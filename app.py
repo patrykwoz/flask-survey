@@ -1,4 +1,4 @@
-from flask import Flask, request, flash, render_template, redirect, url_for
+from flask import Flask, request, flash, render_template, redirect, url_for, session, make_response
 from flask_debugtoolbar import DebugToolbarExtension
 import surveys
 
@@ -120,3 +120,15 @@ def thankyou_page():
 
     return render_template('thankyou.html', survey_name=survey_name, survey = current_survey,
     survey_names=survey_names)
+
+
+@app.route('/setcookie')
+def set_cookie():
+    my_cookie = 'some_value'
+    content = "<h1>Hello!!</h1>"
+    res = make_response(content)
+    #html = render_template(something)
+    #return html
+    res.set_cookie('my_cookie', 'some-value')
+
+    return res
