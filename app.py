@@ -8,7 +8,7 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 debug = DebugToolbarExtension(app)
 
-responses = []
+# responses = []
 all_surveys = surveys.surveys
 survey_names = list(all_surveys.keys())
 
@@ -16,12 +16,18 @@ survey_names = list(all_surveys.keys())
 @app.route('/')
 def home_page():
 
+    # session["username"] = "MackMackowsky"
+    # session["leaderbord"] = ["mack", "ryan", "billy"]
+    session["responses"] = []
+
     first_survey = survey_names[0]
 
     return redirect(f'/{first_survey}')
 
 @app.route('/<survey_name>')
 def survey_page(survey_name):
+    # flash(session["username"])
+
     current_survey = all_surveys[survey_name]
 
 
@@ -29,6 +35,8 @@ def survey_page(survey_name):
 
 @app.route('/questions/<int:question_number>')
 def questions_page(question_number):
+    responses = session['responses']
+
     survey_name = request.args.get('survey')
 
     current_survey = all_surveys[survey_name]
@@ -75,6 +83,8 @@ def questions_page(question_number):
 
 @app.route('/answer', methods=['POST'])
 def process_answers():
+    responses = session['responses']
+
     question_number = int(request.form.get('question_number'))
     survey_name = request.form.get('survey')
     current_survey = all_surveys[survey_name]
@@ -110,13 +120,15 @@ def process_answers():
     if next_question < 0:
         redirect_string = f'/thankyou?survey={survey_name}'
 
-
+    session['responses'] = responses
     return redirect(redirect_string)
 
 @app.route('/thankyou')
 def thankyou_page():
     survey_name = request.args.get('survey')
     current_survey = all_surveys[survey_name]
+
+    flash(session['responses'])
 
     return render_template('thankyou.html', survey_name=survey_name, survey = current_survey,
     survey_names=survey_names)
@@ -132,3 +144,31 @@ def set_cookie():
     res.set_cookie('my_cookie', 'some-value')
 
     return res
+
+# @app.route('/setsession')
+# def set_session():
+#     session["username"] = "MackMackowsky"
+#     session["leaderbord"] = ["mack", "ryan", "billy"]
+#     return render_template("sometemplate.html")
+@app.route('/login-form')
+def login():
+    return render_template('login.html')
+
+@app.route('/login')
+def verify_secret():
+    SECRET = 'beavers_are_great'
+    entered_code = request.args['secret_code']
+    if entered_code == SECRET:
+        session["entered-pin"] = True
+        return redirect('/secretinvite')
+    else:
+        return redirect('/login-form')
+
+
+@app.route('/secretinvite')
+def secret_invite():
+    if session.get('entered-pin', False):
+
+        return render_template('invite.html')
+    else:
+        return redirect('/login-form')
